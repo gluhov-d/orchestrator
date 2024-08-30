@@ -1,1 +1,30 @@
 services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: orchestrator
+      POSTGRES_USER: orchestrator
+    ports:
+      - 55721:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/main/resources/db/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: orchestrator
+      DB_PASSWORD: orchestrator
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - 8088:8080
+    depends_on:
+      - postgres
+    command: -v start-dev --import-realm
+    volumes:
+      - ./src/main/resources/keycloak/imports:/opt/keycloak/data/import
+volumes:
+  postgres_data:

@@ -1,0 +1,12 @@
+{
+  "realm": "orchestrator-realm",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "orchestrator",
+      "enabled": true,
+      "secret": "myclientsecret",
+      "protocol": "openid-connect"
+    }
+  ]
+}
