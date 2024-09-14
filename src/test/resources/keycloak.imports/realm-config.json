@@ -1,0 +1,12 @@
+{
+  "realm": "test-realm",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "test",
+      "enabled": true,
+      "secret": "test-secret",
+      "protocol": "openid-connect"
+    }
+  ]
+}

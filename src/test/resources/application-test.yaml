@@ -1,0 +1,12 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8088/realms/test-realm/
+          jwk-set-uri: http://localhost:8088/realms/test-realm/protocol/openid-connect/certs
+      client:
+        registration:
+          keycloak:
+            client-id: test-client
+            client-secret: test-secret
