@@ -1,5 +1,4 @@
 {
-  "id": "489dbbe7-8481-488d-bed6-9515cde6de2a",
   "realm": "orchestrator-realm",
   "notBefore": 0,
   "defaultSignatureAlgorithm": "RS256",
@@ -25,8 +24,8 @@
   "actionTokenGeneratedByUserLifespan": 300,
   "oauth2DeviceCodeLifespan": 600,
   "oauth2DevicePollingInterval": 5,
-  "enabled": true,
   "sslRequired": "external",
+  "enabled": true,
   "registrationAllowed": true,
   "registrationEmailAsUsername": true,
   "rememberMe": false,
@@ -466,6 +465,27 @@
   "webAuthnPolicyPasswordlessExtraOrigins": [],
   "users": [
     {
+      "username":"user",
+      "createdTimestamp": 1647520540704,
+      "firstName":"Example",
+      "lastName":"User",
+      "emailVerified" : true,
+      "email":"example@keycloak.org",
+      "enabled":true,
+      "credentials":[
+        {
+          "type":"password",
+          "value":"password"
+        }
+      ],
+      "clientRoles":{
+        "account":[
+          "manage-account",
+          "manage-users"
+        ]
+      }
+    },
+    {
       "id": "1ccd25e3-f8f5-4e5a-8abd-8fa08414abbc",
       "username": "service-account-orchestrator",
       "emailVerified": false,
@@ -713,7 +733,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "rSNaQ1BQuKgOBzFabLvghl2lLQWI07rw",
       "redirectUris": [
         "/*"
       ],
@@ -803,44 +823,7 @@
         "microprofile-jwt"
       ],
       "authorizationSettings": {
-        "allowRemoteResourceManagement": true,
-        "policyEnforcementMode": "ENFORCING",
-        "resources": [
-          {
-            "name": "Default Resource",
-            "type": "urn:orchestrator:resources:default",
-            "ownerManagedAccess": false,
-            "attributes": {},
-            "uris": [
-              "/*"
-            ]
-          }
-        ],
-        "policies": [
-          {
-            "name": "Default Policy",
-            "description": "A policy that grants access only for users within this realm",
-            "type": "js",
-            "logic": "POSITIVE",
-            "decisionStrategy": "AFFIRMATIVE",
-            "config": {
-              "code": "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
-            }
-          },
-          {
-            "name": "Default Permission",
-            "description": "A permission that applies to the default resource type",
-            "type": "resource",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "config": {
-              "defaultResourceType": "urn:orchestrator:resources:default",
-              "applyPolicies": "[\"Default Policy\"]"
-            }
-          }
-        ],
-        "scopes": [],
-        "decisionStrategy": "UNANIMOUS"
+
       }
     },
     {

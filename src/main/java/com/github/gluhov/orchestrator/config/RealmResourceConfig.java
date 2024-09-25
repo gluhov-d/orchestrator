@@ -14,22 +14,30 @@ public class RealmResourceConfig {
     private String clientId;
     @Value("${spring.security.oauth2.client.registration.keycloak.client-secret}")
     private String clientSecret;
+    @Value("${kc.realm}")
+    private String realm;
+    @Value("${kc.base-url}")
+    private String baseUrl;
+    @Value("${kc.user}")
+    private String user;
+    @Value("${kc.password}")
+    private String password;
 
     @Bean
     Keycloak keycloak() {
         return KeycloakBuilder.builder()
-                .serverUrl("http://localhost:8088")
-                .realm("orchestrator-realm")
+                .serverUrl(baseUrl)
+                .realm(realm)
                 .clientId(clientId)
                 .clientSecret(clientSecret)
                 .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-                .username("admin")
-                .password("admin")
+                .username(user)
+                .password(password)
                 .build();
     }
 
     @Bean
     RealmResource realResource(Keycloak keycloak){
-        return keycloak.realm("orchestrator-realm");
+        return keycloak.realm(realm);
     }
 }

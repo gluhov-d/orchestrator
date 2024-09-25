@@ -3,6 +3,7 @@ package com.github.gluhov.orchestrator.service;
 import com.github.gluhov.orchestrator.dto.AuthRequestDto;
 import com.github.gluhov.orchestrator.dto.UserInfoDto;
 import com.github.gluhov.orchestrator.exception.ApiException;
+import com.github.gluhov.orchestrator.exception.AuthException;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class UserService {
     private final WebClient webClient;
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String keycloakIssuerUri;
+
     public Mono<String> register(AuthRequestDto authRequestDto) {
         log.debug("try to register {}", authRequestDto);
         UserRepresentation userRepresentation = getUser(authRequestDto);
@@ -34,26 +36,24 @@ public class UserService {
                     try {
                         Response response = realmResource.users().create(userRepresentation);
                         if (response.getStatus() != 201) {
-                            throw new ApiException("Failed to create user", "O_REGISTER_USER_ERROR");
+                            throw new AuthException("Failed to create user", "O_REGISTER_USER_ERROR");
                         }
                         locationHeader = response.getHeaderString("Location");
                         if (locationHeader == null || locationHeader.isEmpty()) {
-                            throw new ApiException("Missing location header after user registration", "O_REGISTER_USER_ERROR");
+                            throw new AuthException("Missing location header after user registration", "O_REGISTER_USER_ERROR");
                         }
 
                     } catch (Exception e) {
                         log.error("Error while registering new user: {}", e.getMessage());
-                        throw e;
+                        throw new RuntimeException(e);
                     }
 
                     return locationHeader.substring(locationHeader.lastIndexOf('/') + 1);
                 })
-                .doOnSuccess(userId -> {
-                    log.info("Registration success for user: {}", userId);
-                })
+                .doOnSuccess(userId -> log.info("Registration success for user: {}", userId))
                 .onErrorResume(e -> {
                     log.error("Failed to register user {}", authRequestDto, e);
-                    return Mono.error(new ApiException("Failed to register user", "O_REGISTER_USER_ERROR"));
+                    return Mono.error(new AuthException("Failed to register user", "O_REGISTER_USER_ERROR"));
                 });
     }
 
@@ -66,7 +66,7 @@ public class UserService {
                         clientResponse -> clientResponse.bodyToMono(String.class)
                                 .flatMap(errorBody -> {
                                     log.error("Error from Keycloak: {}", errorBody);
-                                    return Mono.error(new ApiException("Error from Keycloak: " + errorBody, "O_REGISTRATION_ERROR"));
+                                    return Mono.error(new ApiException("Error from Keycloak: " + errorBody, "O_GET_INFO_ERROR"));
                                 }))
                 .bodyToMono(UserInfo.class)
                 .map(userInfo -> UserInfoDto.builder()

@@ -31,12 +31,12 @@ public class AuthRestControllerV1 {
     }
 
     @PostMapping("/register")
-    public Mono<?> register(@RequestBody AuthRequestDto registrationRequest) {
+    public Mono<ResponseEntity<Void>> register(@RequestBody AuthRequestDto registrationRequest) {
         return userService.register(registrationRequest)
                 .map(userId -> ResponseEntity.created(URI.create("/users/" + userId)).build());
     }
 
-    @PostMapping("/refreshtoken")
+    @PostMapping("/refresh-token")
     public Mono<?> refreshToken(@RequestBody RefreshTokenRequestDto refreshTokenRequestDto) {
         return securityService.refreshToken(refreshTokenRequestDto)
                 .map(authResponseDto -> ResponseEntity.ok().body(authResponseDto));

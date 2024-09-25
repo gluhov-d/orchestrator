@@ -1,13 +1,20 @@
 server:
   port: 8083
 
+kc:
+  base-url: ${BASE_URL}
+  realm: ${REALM}
+  realm-url: ${kc.base-url}/realms/${kc.realm}
+  user: ${KEYCLOAK_USER}
+  password: ${KEYCLOAK_PASSWORD}
+
 spring:
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI}
-          jwk-set-uri: ${KEYCLOAK_ISSUER_URI}/protocol/openid-connect/certs
+          issuer-uri: ${kc.realm-url}
+          jwk-set-uri: ${kc.realm-url}/protocol/openid-connect/certs
       client:
         registration:
           keycloak:
@@ -16,4 +23,4 @@ spring:
             scope: openid, profile
         provider:
           keycloak:
-            issuer-uri: ${KEYCLOAK_ISSUER_URI}
+            issuer-uri: ${kc.realm-url}

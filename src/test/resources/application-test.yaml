@@ -1,12 +1,16 @@
+kc:
+  realm: orchestrator-realm
+  base-url: ${BASE_URL}
+  realm-url: ${kc.base-url}/realms/${kc.realm}
+  user: user
+  password: password
+
 spring:
   security:
     oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8088/realms/test-realm/
-          jwk-set-uri: http://localhost:8088/realms/test-realm/protocol/openid-connect/certs
       client:
         registration:
           keycloak:
-            client-id: test-client
-            client-secret: test-secret
+            client-id: orchestrator
+            client-secret: rSNaQ1BQuKgOBzFabLvghl2lLQWI07rw
+            scope: openid, profile

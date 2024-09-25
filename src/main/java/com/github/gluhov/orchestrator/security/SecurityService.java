@@ -3,19 +3,19 @@ package com.github.gluhov.orchestrator.security;
 import com.github.gluhov.orchestrator.dto.AuthRequestDto;
 import com.github.gluhov.orchestrator.dto.AuthResponseDto;
 import com.github.gluhov.orchestrator.dto.RefreshTokenRequestDto;
-import com.github.gluhov.orchestrator.exception.ApiException;
+import com.github.gluhov.orchestrator.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-@Component
+@Service
 @RequiredArgsConstructor
 @Slf4j
 public class SecurityService {
@@ -43,7 +43,7 @@ public class SecurityService {
                         clientResponse -> clientResponse.bodyToMono(String.class)
                                 .flatMap(errorBody -> {
                                     log.error("Error from Keycloak: {}", errorBody);
-                                    return Mono.error(new ApiException("Error from Keycloak: " + errorBody, "O_REGISTRATION_ERROR"));
+                                    return Mono.error(new AuthException("Error from Keycloak: " + errorBody, "O_AUTHENTICATE_ERROR"));
                                 }))
                 .bodyToMono(AccessTokenResponse.class)
                 .map(accessTokenResponse -> AuthResponseDto.builder()
@@ -67,7 +67,7 @@ public class SecurityService {
                         clientResponse -> clientResponse.bodyToMono(String.class)
                                 .flatMap(errorBody -> {
                                     log.error("Error from Keycloak: {}", errorBody);
-                                    return Mono.error(new ApiException("Error from Keycloak: " + errorBody, "O_REGISTRATION_ERROR"));
+                                    return Mono.error(new AuthException("Error from Keycloak: " + errorBody, "O_REFRESH_TOKEN_ERROR"));
                                 }))
                 .bodyToMono(AccessTokenResponse.class)
                 .map(accessTokenResponse -> AuthResponseDto.builder()
