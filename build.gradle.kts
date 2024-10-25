@@ -13,12 +13,15 @@ java {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+
+    implementation("com.github.gluhov:common:1.0.0")
 
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
@@ -35,6 +38,7 @@ dependencies {
     testImplementation("com.github.dasniko:testcontainers-keycloak:3.4.0")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.springframework.cloud:spring-cloud-contract-wiremock:4.1.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

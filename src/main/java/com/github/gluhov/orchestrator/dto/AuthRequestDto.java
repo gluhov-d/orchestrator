@@ -10,8 +10,5 @@ import lombok.Data;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AuthRequestDto {
     private String username;
-    private String email;
     private String password;
-    private String firstName;
-    private String lastName;
 }

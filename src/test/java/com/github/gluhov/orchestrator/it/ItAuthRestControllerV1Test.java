@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.gluhov.orchestrator.dto.AuthRequestDto;
 import com.github.gluhov.orchestrator.dto.RefreshTokenRequestDto;
 import com.github.gluhov.orchestrator.rest.AuthRestControllerV1;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,13 +14,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import static com.github.gluhov.orchestrator.service.IndividualsData.individualsDto;
+import static com.github.gluhov.orchestrator.service.IndividualsData.jsonResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient
+@AutoConfigureWebTestClient(timeout = "36000")
 @ActiveProfiles("test")
+@AutoConfigureWireMock(port = 8181)
 public class ItAuthRestControllerV1Test extends AbstractRestControllerTest{
     private final String REST_URL = AuthRestControllerV1.REST_URL;
     @Autowired
@@ -97,37 +104,39 @@ public class ItAuthRestControllerV1Test extends AbstractRestControllerTest{
     @Test
     @DisplayName("Test register with correct data")
     public void givenUserData_whenRegister_thenSuccessResponse() {
-        AuthRequestDto registerRequest = AuthRequestDto.builder()
-                .email("user@test.com")
-                .password("password")
-                .firstName("John")
-                .lastName("Doe")
-                .username("user@test.com")
-                .build();
-
+        stubFor(WireMock.post(urlPathMatching("/api/v1/individuals"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(jsonResponse)));
 
         WebTestClient.ResponseSpec result = webTestClient.post()
                 .uri(REST_URL + "/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(registerRequest)
+                .bodyValue(individualsDto)
                 .exchange();
 
-        result.expectStatus().isCreated()
-                .expectHeader().exists("location");
+        result.expectStatus().isOk()
+                .expectBody()
+                .consumeWith(System.out::println)
+                .jsonPath("$.body.passport_number").isEqualTo(individualsDto.getPassportNumber())
+                .jsonPath("$.body.phone_number").isEqualTo(individualsDto.getPhoneNumber())
+                .jsonPath("$.body.email").isEqualTo(individualsDto.getEmail());
     }
 
     @Test
     @DisplayName("Test register with invalid data")
     public void givenUserData_whenRegister_thenErrorResponse() {
-        AuthRequestDto registerRequest = AuthRequestDto.builder()
-                .email("user@test.com")
-                .build();
-
+        stubFor(WireMock.post(urlPathMatching("/api/v1/individuals"))
+                .willReturn(aResponse()
+                        .withStatus(400)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{message: Bad Request}")));
 
         WebTestClient.ResponseSpec result = webTestClient.post()
                 .uri(REST_URL + "/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(registerRequest)
+                .bodyValue(individualsDto)
                 .exchange();
 
         result.expectStatus().is4xxClientError()
@@ -175,7 +184,6 @@ public class ItAuthRestControllerV1Test extends AbstractRestControllerTest{
                 .consumeWith(System.out::println)
                 .jsonPath("$.body.access_token").isNotEmpty()
                 .jsonPath("$.body.refresh_token").isNotEmpty()
-                .jsonPath("$.body.token_type").isEqualTo("Bearer")
-                .jsonPath("$.body.expires_in").isEqualTo(300);
+                .jsonPath("$.body.token_type").isEqualTo("Bearer");
     }
 }

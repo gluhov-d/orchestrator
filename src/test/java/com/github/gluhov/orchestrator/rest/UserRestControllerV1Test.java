@@ -1,6 +1,6 @@
 package com.github.gluhov.orchestrator.rest;
 
-import com.github.gluhov.orchestrator.dto.UserInfoDto;
+import com.github.gluhov.dto.IndividualsDto;
 import com.github.gluhov.orchestrator.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,8 +12,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.UUID;
+
+import static com.github.gluhov.orchestrator.service.IndividualsData.individualsDto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -25,26 +29,19 @@ public class UserRestControllerV1Test {
     private UserService userService;
 
     @Test
-    @DisplayName("Test get user info with valid token")
-    public void testGetInfo() {
-        UserInfoDto userInfo = UserInfoDto.builder()
-                .email("user@test.com")
-                .firstName("John")
-                .lastName("Doe")
-                .username("john.doe")
-                .build();
+    @DisplayName("Test get individual info functionality then success response")
+    public void givenIndividualId_whenGetInfo_thenSuccessResponse() {
+        when(userService.getInfo(anyString(), any())).thenReturn(Mono.just(individualsDto));
 
-        when(userService.getInfo(anyString())).thenReturn(Mono.just(userInfo));
-
-        Mono<ResponseEntity<UserInfoDto>> result = (Mono<ResponseEntity<UserInfoDto>>) userRestControllerV1.getInfo("Bearer accessToken");
+        Mono<ResponseEntity<IndividualsDto>> result = (Mono<ResponseEntity<IndividualsDto>>) userRestControllerV1.getInfo("Bearer accessToken", UUID.randomUUID());
         StepVerifier.create(result)
                 .assertNext(r -> {
                     assertNotNull(r);
-                    UserInfoDto userInfoDto = r.getBody();
-                    assertNotNull(userInfoDto);
-                    assertEquals("user@test.com", userInfoDto.getEmail());
-                    assertEquals("John", userInfoDto.getFirstName());
-                    assertEquals("Doe", userInfoDto.getLastName());
+                    IndividualsDto individualDto = r.getBody();
+                    assertNotNull(individualDto);
+                    assertEquals("test@example.com", individualsDto.getEmail());
+                    assertEquals("Jon", individualsDto.getUser().getFirstName());
+                    assertEquals("Will", individualsDto.getUser().getLastName());
                 })
                 .verifyComplete();
     }

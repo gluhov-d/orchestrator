@@ -22,6 +22,6 @@ public class AbstractRestControllerTest {
     @DynamicPropertySource
     public static void dynamicPropertySource(DynamicPropertyRegistry registry) {
         final Supplier<Object> baseUrl = () -> ("http://localhost:" + KEYCLOAK_CONTAINER.getMappedPort(8080));
-        registry.add("BASE_URL", baseUrl);
+        registry.add("KEYCLOAK_BASE_URL", baseUrl);
     }
 }

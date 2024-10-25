@@ -1,5 +1,6 @@
 package com.github.gluhov.orchestrator.rest;
 
+import com.github.gluhov.dto.IndividualsDto;
 import com.github.gluhov.orchestrator.dto.AuthRequestDto;
 import com.github.gluhov.orchestrator.dto.AuthResponseDto;
 import com.github.gluhov.orchestrator.dto.RefreshTokenRequestDto;
@@ -15,6 +16,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static com.github.gluhov.orchestrator.service.IndividualsData.INDIVIDUAL_ID;
+import static com.github.gluhov.orchestrator.service.IndividualsData.individualsDto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,10 +33,10 @@ public class AuthRestControllerV1Test {
     private UserService userService;
 
     @Test
-    @DisplayName("Test login with valid credentials")
-    public void testLogin() {
+    @DisplayName("Test login functionality then success response")
+    public void givenAuthRequest_whenLogin_thenSuccessResponse() {
         AuthRequestDto authRequest = AuthRequestDto.builder()
-                .email("user@test.com")
+                .username("user@test.com")
                 .password("password")
                 .build();
         AuthResponseDto authResponse = AuthResponseDto.builder()
@@ -56,27 +59,26 @@ public class AuthRestControllerV1Test {
     }
 
     @Test
-    @DisplayName("Test register with valid credentials")
-    public void testRegister() {
-        AuthRequestDto registerRequest = AuthRequestDto.builder()
-                .email("user@test.com")
-                .password("password")
-                .build();
+    @DisplayName("Test register individual with valid credentials then success response")
+    public void givenIndividualDto_whenRegister_thenSuccessResponse() {
 
-        when(userService.register(any(AuthRequestDto.class))).thenReturn(Mono.just("12345"));
+        when(userService.register(any(IndividualsDto.class))).thenReturn(Mono.just(individualsDto));
 
-        Mono<ResponseEntity<Void>> result = authRestControllerV1.register(registerRequest);
+        Mono<ResponseEntity<IndividualsDto>> result = (Mono<ResponseEntity<IndividualsDto>>) authRestControllerV1.register(individualsDto);
         StepVerifier.create(result)
                 .assertNext(r -> {
                     assertNotNull(r);
-                    assertEquals("/users/12345", r.getHeaders().getLocation().toString());
-                })
-                .verifyComplete();
+                    IndividualsDto individualDto = r.getBody();
+                    assertEquals("test@example.com", individualDto.getEmail());
+                    assertEquals("1234-553-222", individualDto.getPhoneNumber());
+                    assertEquals("479-80-111", individualDto.getPassportNumber());
+                    assertEquals(INDIVIDUAL_ID, individualDto.getId());
+                }).verifyComplete();
     }
 
     @Test
-    @DisplayName("Test refresh token with valid token")
-    public void testRefreshToken() {
+    @DisplayName("Test refresh token functionality then success response")
+    public void givenRefreshTokenRequest_whenRefreshToken_thenSuccessResponse() {
         RefreshTokenRequestDto refreshTokenRequest = RefreshTokenRequestDto.builder()
                 .refreshToken("refreshToken")
                 .build();

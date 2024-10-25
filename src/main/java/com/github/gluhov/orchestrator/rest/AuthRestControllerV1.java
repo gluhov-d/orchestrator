@@ -1,5 +1,6 @@
 package com.github.gluhov.orchestrator.rest;
 
+import com.github.gluhov.dto.IndividualsDto;
 import com.github.gluhov.orchestrator.dto.AuthRequestDto;
 import com.github.gluhov.orchestrator.dto.RefreshTokenRequestDto;
 import com.github.gluhov.orchestrator.security.SecurityService;
@@ -11,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-
-import java.net.URI;
 
 import static com.github.gluhov.orchestrator.rest.AuthRestControllerV1.REST_URL;
 
@@ -31,9 +30,9 @@ public class AuthRestControllerV1 {
     }
 
     @PostMapping("/register")
-    public Mono<ResponseEntity<Void>> register(@RequestBody AuthRequestDto registrationRequest) {
-        return userService.register(registrationRequest)
-                .map(userId -> ResponseEntity.created(URI.create("/users/" + userId)).build());
+    public Mono<?> register(@RequestBody IndividualsDto individualsDto) {
+        return userService.register(individualsDto)
+                .map(savedIndividualDto -> ResponseEntity.ok().body(savedIndividualDto));
     }
 
     @PostMapping("/refresh-token")

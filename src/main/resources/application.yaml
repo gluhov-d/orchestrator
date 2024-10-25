@@ -1,9 +1,12 @@
 server:
   port: 8083
 
+ams:
+  base-url: ${AMS_BASE_URL}
+
 kc:
-  base-url: ${BASE_URL}
-  realm: ${REALM}
+  base-url: ${KEYCLOAK_BASE_URL}
+  realm: ${KEYCLOAK_REALM}
   realm-url: ${kc.base-url}/realms/${kc.realm}
   user: ${KEYCLOAK_USER}
   password: ${KEYCLOAK_PASSWORD}
